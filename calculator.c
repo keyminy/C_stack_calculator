@@ -1,8 +1,54 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
 #include "calculator.h"
 #include "stack.h"
+
+void add_integer(Tokens* tokens, int val) {
+	tokens->integers[tokens->num_count++] = val;
+}
+void add_char(Tokens* tokens, char ch) {
+	tokens->chars[tokens->char_count++] = ch;
+}
+
+Tokens split_tokens(const char* exp) {
+	Tokens tokens = {NULL,NULL,0,0};
+	int val = 0;
+	bool valProcessing = false;
+	int len = strlen(exp);
+	// exp[] = (( 222 + 4 ) * 55 ) - 100 / 7 * 5 - 5 * 10 =
+	
+	for (int i = 0; i < len; i++) {
+		char ch = exp[i];
+		if (ch == '=' || ch == ' ' || ch == '\n') {
+			continue;
+		}
+		if (isdigit(ch)) {
+			// operand
+			//ch - '0' : 문자열 숫자를 정수화해준다 ex) value = '2' - '0' = 2(integer)
+			val = val * 10 + (ch - '0');
+			valProcessing = true;
+		}
+		else {
+			// operator
+			if (valProcessing) {
+				// 이전 연산이 operand(숫자)
+				add_integer(&tokens, val);
+				val = 0;
+			}
+			valProcessing = false;
+			add_char(&tokens, ch);
+		}
+	}
+	// 마지막 숫자처리
+	if (valProcessing) {
+		add_integer(&tokens, val);
+		val = 0;
+	}
+	return tokens;
+}
 
 // 후위 표기 수식 계산 함수
 int eval(char exp[]) {
@@ -57,6 +103,8 @@ int priority(char op) {
 	}
 	return -1;
 }
+
+
 
 char* infix_to_postfix(char exp[],char post_res[]) {
 	char ch;

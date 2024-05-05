@@ -14,17 +14,21 @@ int main()
     createStack(&stk);
 
 	char szBuffer[50] = { 0 };
-
-	//fgets(szBuffer, sizeof(szBuffer), stdin);
+	Tokens tokenized;
 	// input :  (( 222 + 4 ) * 55 ) - 100 / 7 * 5 - 5 * 10 =
-	//removeNewLine(szBuffer);
-	//char* str2 = NULL;
-	//char* p_splited = strtok_s(szBuffer, " ",&str2);
+	fgets(szBuffer, sizeof(szBuffer), stdin);
+	tokenized = split_tokens(szBuffer);
+	
+	printf("tokenized : %s\n", tokenized.chars);
+	for (int i = 0; i < tokenized.num_count; i++) {
+		printf("숫자 : %d\n", tokenized.integers[i]);
+	}
 
-	char* s = "6+(3-2)*4";
+	char* s = "100*4";
 	char post_res[MAX_SIZE] = { NULL };
 	printf("중위표시 수식 : %s\n", s);
-	printf("후위 표시 수식 : %s", infix_to_postfix(s,post_res));
+	printf("후위 표시 수식 : %s\n", infix_to_postfix(s,post_res));
+	printf("결과 : %d\n", eval(post_res));
 
     return 0;
 }
