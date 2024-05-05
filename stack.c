@@ -4,7 +4,7 @@ void createStack(stack* p) {
 	p->top = -1;
 }
 
-void push(stack* p, int elemenet) {
+void push(stack* p, double elemenet) {
 	if (p->top == MAX_SIZE - 1) {
 		printf("stack overflow!!\n");
 		return;
@@ -12,13 +12,13 @@ void push(stack* p, int elemenet) {
 	p->arr[++(p->top)] = elemenet;
 }
 
-int pop(stack* p) {
+double  pop(stack* p) {
 	if (p->top == -1) {
 		return -1; // sack is empty
 	}
 	return p->arr[(p->top)--];
 }
-int top(stack* p) {
+double  top(stack* p) {
 	if (p->top == -1) {
 		return -1; // sack is empty
 	}

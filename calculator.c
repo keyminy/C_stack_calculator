@@ -6,7 +6,7 @@
 #include "calculator.h"
 #include "stack.h"
 
-void add_integer(Tokens* tokens, int val) {
+void add_integer(Tokens* tokens, double val) {
 	tokens->integers[tokens->total_tokens] = val;
 	tokens->types[tokens->total_tokens] = TOKEN_INTEGER;
 	tokens->total_tokens++;
@@ -18,8 +18,8 @@ void add_char(Tokens* tokens, char ch) {
 }
 
 Tokens split_tokens(const char* exp) {
-	Tokens tokens = {NULL,NULL,0,0};
-	int val = 0;
+	Tokens tokens = { {0.0},NULL,0,0 };
+	double val = 0.0;
 	bool valProcessing = false;
 	int len = strlen(exp);
 	// exp[] = (( 222 + 4 ) * 55 ) - 100 / 7 * 5 - 5 * 10 =
@@ -62,7 +62,7 @@ double eval(const Tokens* postfixed_struct) {
 
 	for (int i = 0; i < postfixed_struct->total_tokens; i++) {
 		if (postfixed_struct->types[i] == TOKEN_INTEGER) {
-			int num = postfixed_struct->integers[i];
+			double num = postfixed_struct->integers[i];
 			//operand¿Ã∏È, stackø° push
 			push(&stk, num);
 		}
@@ -109,14 +109,14 @@ int priority(char op) {
 
 Tokens infix_to_postfix(const Tokens* tokens) {
 	stack operator_stk;
-	Tokens postfixed_struct = { NULL,NULL,0,0 };
+	Tokens postfixed_struct = { {0.0},NULL,0,0 };
 	createStack(&operator_stk);
 
 	// char* s = "6+(3-2)*4";
 
 	for (int i = 0; i < tokens->total_tokens; i++) {
 		if (tokens->types[i] == TOKEN_INTEGER) {
-			int num = tokens->integers[i];
+			double num = tokens->integers[i];
 			//printf("%d ", num);
 			add_integer(&postfixed_struct, num);
 		}
