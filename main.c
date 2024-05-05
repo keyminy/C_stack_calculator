@@ -16,15 +16,15 @@ int main()
 	char szBuffer[50] = { 0 };
 
 	//fgets(szBuffer, sizeof(szBuffer), stdin);
-	// input :  ( ( 222 + 4 ) * 55 ) - 100 / 7 * 5 - 5 * 10 =
+	// input :  (( 222 + 4 ) * 55 ) - 100 / 7 * 5 - 5 * 10 =
 	//removeNewLine(szBuffer);
 	//char* str2 = NULL;
 	//char* p_splited = strtok_s(szBuffer, " ",&str2);
 
-	int result; 
-	char exp[] = "632-4*+"; // 6+(3-2)*4
-	result  = eval(exp);
-	printf("결과값은 %d\n", result);
+	char* s = "6+(3-2)*4";
+	char post_res[MAX_SIZE] = { NULL };
+	printf("중위표시 수식 : %s\n", s);
+	printf("후위 표시 수식 : %s", infix_to_postfix(s,post_res));
 
     return 0;
 }

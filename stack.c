@@ -32,4 +32,10 @@ void displayStack(stack* p) {
 	}
 	puts("");
 }
-
+void clearStack(stack* p)
+{
+	p->top = -1;
+}
+int isEmpty(stack* p) {
+	return p->top == -1;
+}

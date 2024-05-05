@@ -42,3 +42,68 @@ int eval(char exp[]) {
 	}
 	return pop(&stk); // 마지막 최종 계산 결과를 return
 }
+// 큰 숫자일수록 우선순위 높음
+int priority(char op) {
+	switch (op) {
+	case '(':
+	case ')':
+		return 0;
+	case '+':
+	case '-':
+		return 1;
+	case '*':
+	case '/':
+		return 2;
+	}
+	return -1;
+}
+
+char* infix_to_postfix(char exp[],char post_res[]) {
+	char ch;
+	int len = strlen(exp);
+	stack operator_stk;
+	createStack(&operator_stk);
+	// char* s = "6+(3-2)*4";
+	for (int i = 0; i < len; i++) {
+		ch = exp[i];
+		switch (ch) {
+		case '+': case '-': case '*': case '/':
+			// operator
+			//스택의 top의 연산자 우선순위와 ch의 우선순위를 비교
+			while (!isEmpty(&operator_stk)) {
+				if (priority(top(&operator_stk)) >= priority(ch)) {
+					//기존의 것 pop
+					//printf("%c",pop(&operator_stk));
+					sprintf_s(post_res, sizeof(post_res),"%s%c",post_res,pop(&operator_stk));
+				}
+				else {
+					break;
+				}
+			}
+			push(&operator_stk, ch);
+			break;
+		case '(':
+			push(&operator_stk,ch);
+			break;
+		case ')':
+			while (top(&operator_stk) != '(') {
+				//printf("%c",pop(&operator_stk));
+				sprintf_s(post_res, sizeof(post_res), "%s%c", post_res, pop(&operator_stk));
+			}
+			// '(' 도 pop()
+			pop(&operator_stk);
+			break;
+		default:
+			// operand
+			//printf("%c", ch);
+			sprintf_s(post_res, sizeof(post_res), "%s%c", post_res,ch);
+			break;
+		}
+	}
+	// stack에 남아있는 operator들을 모조리 pop한다
+	while (!isEmpty(&operator_stk)) {
+		//printf("%c", pop(&operator_stk));
+		sprintf_s(post_res, sizeof(post_res), "%s%c", post_res, pop(&operator_stk));
+	}
+	return post_res;
+}

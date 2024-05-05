@@ -12,3 +12,4 @@ int pop(stack* p);
 int top(stack* p);
 void displayStack(stack* p);
 void clearStack(stack* p);
+int isEmpty(stack* p);
