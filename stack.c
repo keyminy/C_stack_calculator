@@ -36,6 +36,6 @@ void clearStack(stack* p)
 {
 	p->top = -1;
 }
-int isEmpty(stack* p) {
-	return p->top == -1;
+int isEmpty(stack* s) {
+	return s->top == -1;
 }

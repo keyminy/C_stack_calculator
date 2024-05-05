@@ -7,10 +7,14 @@
 #include "stack.h"
 
 void add_integer(Tokens* tokens, int val) {
-	tokens->integers[tokens->num_count++] = val;
+	tokens->integers[tokens->total_tokens] = val;
+	tokens->types[tokens->total_tokens] = TOKEN_INTEGER;
+	tokens->total_tokens++;
 }
 void add_char(Tokens* tokens, char ch) {
-	tokens->chars[tokens->char_count++] = ch;
+	tokens->chars[tokens->total_tokens] = ch;
+	tokens->types[tokens->total_tokens] = TOKEN_CHAR;
+	tokens->total_tokens++;
 }
 
 Tokens split_tokens(const char* exp) {
@@ -51,22 +55,19 @@ Tokens split_tokens(const char* exp) {
 }
 
 // 후위 표기 수식 계산 함수
-int eval(char exp[]) {
-	int op1, op2, value;
-	int len = strlen(exp);
-	char ch;
+double eval(const Tokens* postfixed_struct) {
+	double op1, op2;
 	stack stk;
 	createStack(&stk);
-	// char exp[] = "632-4*+";
-	for (int i = 0; i < len; i++) {
-		ch = exp[i];
-		if (ch != '*' && ch != '/' && ch != '+' && ch != '-') {
+
+	for (int i = 0; i < postfixed_struct->total_tokens; i++) {
+		if (postfixed_struct->types[i] == TOKEN_INTEGER) {
+			int num = postfixed_struct->integers[i];
 			//operand이면, stack에 push
-			//문자열 숫자를 정수화해준다 ex) value = '2' - '0' = 2(integer)
-			value = ch - '0';
-			push(&stk,value);
+			push(&stk, num);
 		}
-		else {
+		else if (postfixed_struct->types[i] == TOKEN_CHAR) {
+			char ch = postfixed_struct->chars[i];
 			//operator이면, 2개의 operand를 pop후 연산결과를 stack에 다시 넣음
 			op2 = pop(&stk);
 			op1 = pop(&stk);
@@ -106,52 +107,55 @@ int priority(char op) {
 
 
 
-char* infix_to_postfix(char exp[],char post_res[]) {
-	char ch;
-	int len = strlen(exp);
+Tokens infix_to_postfix(const Tokens* tokens) {
 	stack operator_stk;
+	Tokens postfixed_struct = { NULL,NULL,0,0 };
 	createStack(&operator_stk);
+
 	// char* s = "6+(3-2)*4";
-	for (int i = 0; i < len; i++) {
-		ch = exp[i];
-		switch (ch) {
-		case '+': case '-': case '*': case '/':
-			// operator
-			//스택의 top의 연산자 우선순위와 ch의 우선순위를 비교
-			while (!isEmpty(&operator_stk)) {
-				if (priority(top(&operator_stk)) >= priority(ch)) {
-					//기존의 것 pop
-					//printf("%c",pop(&operator_stk));
-					sprintf_s(post_res, sizeof(post_res),"%s%c",post_res,pop(&operator_stk));
-				}
-				else {
+
+	for (int i = 0; i < tokens->total_tokens; i++) {
+		if (tokens->types[i] == TOKEN_INTEGER) {
+			int num = tokens->integers[i];
+			//printf("%d ", num);
+			add_integer(&postfixed_struct, num);
+		}
+		else if (tokens->types[i] == TOKEN_CHAR){
+			char ch = tokens->chars[i];
+			switch (ch) {
+				case '+': case '-': case '*': case '/':
+					// operator
+					//스택의 top의 연산자 우선순위와 ch의 우선순위를 비교
+					while (!isEmpty(&operator_stk)) {
+						if (priority(top(&operator_stk)) >= priority(ch)) {
+							//기존의 것 pop
+							//printf("%c",pop(&operator_stk));
+							add_char(&postfixed_struct, pop(&operator_stk));
+						}
+						else {
+							break;
+						}
+					}
+					push(&operator_stk, ch);
 					break;
-				}
+				case '(':
+					push(&operator_stk, ch);
+					break;
+				case ')':
+					while (top(&operator_stk) != '(') {
+						//printf("%c",pop(&operator_stk));
+						add_char(&postfixed_struct, pop(&operator_stk));
+					}
+					// '(' 도 pop()
+					pop(&operator_stk);
+					break;
 			}
-			push(&operator_stk, ch);
-			break;
-		case '(':
-			push(&operator_stk,ch);
-			break;
-		case ')':
-			while (top(&operator_stk) != '(') {
-				//printf("%c",pop(&operator_stk));
-				sprintf_s(post_res, sizeof(post_res), "%s%c", post_res, pop(&operator_stk));
-			}
-			// '(' 도 pop()
-			pop(&operator_stk);
-			break;
-		default:
-			// operand
-			//printf("%c", ch);
-			sprintf_s(post_res, sizeof(post_res), "%s%c", post_res,ch);
-			break;
 		}
 	}
 	// stack에 남아있는 operator들을 모조리 pop한다
 	while (!isEmpty(&operator_stk)) {
-		//printf("%c", pop(&operator_stk));
-		sprintf_s(post_res, sizeof(post_res), "%s%c", post_res, pop(&operator_stk));
+		//printf("%c ", pop(&operator_stk));
+		add_char(&postfixed_struct, pop(&operator_stk));
 	}
-	return post_res;
+	return postfixed_struct;
 }

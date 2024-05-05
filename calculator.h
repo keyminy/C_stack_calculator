@@ -1,16 +1,21 @@
 #pragma once
-#define MAX_SIZE 100
+#define MAX_SIZE 30
+
+typedef enum {
+    TOKEN_INTEGER,
+    TOKEN_CHAR
+} TokenType;
 
 typedef struct {
     int integers[MAX_SIZE];
     char chars[MAX_SIZE];
-    int num_count;
-    int char_count;
+    TokenType types[MAX_SIZE]; // Array to store type of each token
+    int total_tokens; // Total number of tokens
 } Tokens;
 
-int eval(char exp[]);
+double eval(const Tokens* postfixed_struct);
 int priority(char op);
-char* infix_to_postfix(char exp[],char post_res[]);
+Tokens infix_to_postfix(const Tokens* tokens);
 void add_char(Tokens* tokens, char ch);
 void add_integer(Tokens* tokens, int val);
-Tokens split_tokens(char exp[]);
+Tokens split_tokens(const char* exp);
