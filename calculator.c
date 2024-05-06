@@ -5,42 +5,73 @@
 #include "calculator.h"
 #include "stack.h"
 
+double change_value(char* num, int* index) {
+	// 문자형을 -> 숫자로(double)
+	double value;
+	char temp[100];
+	int i,k;
+	for (i = 0; num[i] != ' '; i++) {
+		temp[i] = num[i];
+	}
+	temp[i] = '\0';
+	value = atof(temp);
+	k = *index;
+	*index = k + i;
+	return value;
+}
+
+
+words classification(char* ch) {
+	switch (*ch) {
+	case '(':
+		return leftparen;
+	case ')':
+		return rightparen;
+	case '+':
+		return plus;
+	case '-':
+		return minus;
+	case '*':
+		return multiply;
+	case '/':
+		return divide;
+	case '\0':
+		return eos;
+	default:
+		return operand;
+	}
+}
+
+
 // 후위 표기 수식 계산 함수
-int eval(char exp[]) {
-	int op1, op2, value;
-	int len = strlen(exp);
-	char ch;
+double eval(char* postfix) {
+	// postfix : 222 4 +55 *100 7 /5 *-5 10 *-
+	words temp;
+	double op1, op2,value;
+	
 	stack stk;
 	createStack(&stk);
-	// char exp[] = "632-4*+";
-	for (int i = 0; i < len; i++) {
-		ch = exp[i];
-		if (ch != '*' && ch != '/' && ch != '+' && ch != '-') {
-			//operand이면, stack에 push
-			//문자열 숫자를 정수화해준다 ex) value = '2' - '0' = 2(integer)
-			value = ch - '0';
+	for (int i = 0; postfix[i] != '\0'; i++) {
+		if (postfix[i] == ' ') {
+			continue;
+		}
+		temp = classification(&postfix[i]);
+		if (temp == operand) {
+			value = change_value(&postfix[i],&i);
 			push(&stk, value);
 		}
 		else {
-			//operator이면, 2개의 operand를 pop후 연산결과를 stack에 다시 넣음
 			op2 = pop(&stk);
 			op1 = pop(&stk);
-			switch (ch) {
-			case '+':
-				push(&stk, op1 + op2);
-				break;
-			case '-':
-				push(&stk, op1 - op2);
-				break;
-			case '*':
-				push(&stk, op1 * op2);
-				break;
-			case '/':
-				push(&stk, op1 / op2);
-				break;
+			switch (temp) {
+			case plus: push(&stk, op1 + op2); break;
+			case minus: push(&stk, op1 - op2); break;
+			case multiply: push(&stk, op1 * op2); break;
+			case divide: push(&stk, op1 / op2); break;
 			}
 		}
 	}
+
 	return pop(&stk); // 마지막 최종 계산 결과를 return
 }
 // 큰 숫자일수록 우선순위 높음
